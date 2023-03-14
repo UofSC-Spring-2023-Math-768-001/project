@@ -5,6 +5,8 @@ package «project1» {
   -- add any package configuration options here
 }
 
+lean_lib Source 
+
 require mathlib from git
   "https://github.com/leanprover-community/mathlib4.git"
 
