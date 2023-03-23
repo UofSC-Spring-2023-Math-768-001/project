@@ -12,7 +12,9 @@ def closedNbhdSubgraph (v : V) : SimpleGraph {w | G.Adj v w ∨ w = v} where
     intro v₁ v₂ h
     constructor
     · apply G.symm <| h.left
-    · sorry
+    · match h.right with 
+      | .inl h => exact .inr h 
+      | .inr h => exact .inl h
 
 def AdjacentAt (v : V) (e₁ e₂ : edgeSet G) : Prop := Sym2.Mem v e₁ ∧ Sym2.Mem v e₂
 
@@ -39,7 +41,19 @@ theorem EdgeColoring.valid {α : Type v} (G : SimpleGraph V)
 
 noncomputable def edgeChromaticNumber : ℕ := chromaticNumber (lineGraph G)
 
-variable (v : V) [Fintype (G.neighborSet v)] 
+variable (v : V) [Fintype (neighborSet G v)] 
+
+def edgeSpan : Set (edgeSet G) := fun e => Sym2.Mem v e
+
+example (W : Type) (s : Set W) [Fintype s] : Finset W := sorry
+
+theorem edgeSpan_isClique : IsClique (lineGraph G) <| edgeSpan G v := fun _ he₁ _ he₂ ne => ⟨⟨v,⟨he₁,he₂⟩⟩,ne⟩ 
+
+theorem degree_le_edgeColoring [Fintype α] (c : EdgeColoring G α) : G.degree v ≤ Fintype.card α := by sorry
+  change Finset.card (neighborSet G v).univ ≤ Fintype.card α 
+  apply IsClique.card_le_of_coloring (G := lineGraph G)
+  · exact edgeSpan_isClique G v
+  · sorry
 
 def restrictedColoring (c : EdgeColoring G α) : G.neighborSet v → α := sorry
 
