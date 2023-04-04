@@ -49,10 +49,13 @@ def edgeSpan : Set (edgeSet G) := fun e => Sym2.Mem v e
 
 instance : Fintype (edgeSpan G v) := sorry
 
-theorem something : edgeSpan G v = (edgeSpan G v).toFinset := sorry
-#check edgeSet
+theorem something : edgeSpan G v = (edgeSpan G v).toFinset := by
+  exact Eq.symm (Set.coe_toFinset (edgeSpan G v))
+
+
 def neighborSettoEdge (v' : neighborSet G v) : Sym2 V := ⟦(v,v')⟧
-#print Subtype
+
+
 noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v) where
   toFun := fun ⟨v',hv'⟩ => by
     refine ⟨⟨⟦(v,v')⟧,hv'⟩,?_⟩
@@ -64,7 +67,11 @@ noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v
     dsimp [neighborSet]
     rw [←mem_edgeSet,Sym2.other_spec he']
     exact he
-  left_inv := fun v' => by sorry
+  left_inv := fun ⟨v',hv'⟩ => by
+    dsimp
+      
+
+
   right_inv := sorry
 
 example (W : Type) (s : Set W) [Fintype s] : Finset W := s.toFinset
@@ -74,10 +81,15 @@ theorem edgeSpan_isClique : IsClique (lineGraph G) <| edgeSpan G v := fun _ he�
 
 #check IsClique.card_le_of_coloring
 
+
 theorem degree_le_edgeColoring [Fintype α] (c : EdgeColoring G α) : G.degree v ≤ Fintype.card α := by
   change (neighborFinset G v).card ≤ Fintype.card α
-  -- have : (edgeSpan G v).toFinset = neighborFinset G v := sorry
-  -- refine @IsClique.card_le_of_coloring (edgeSet G) (lineGraph G) α (edgeSpan G v).toFinset ?_ _  ?_
+  rw [neighborFinset]
+  have X : Finset.card (Set.toFinset (neighborSet G v)) = Finset.card (Set.toFinset (edgeSpan G v)) := by
+    apply card_eq_of_bijective _ _ _ _
+
+
+  --refine @IsClique.card_le_of_coloring (edgeSet G) (lineGraph G) α (edgeSpan G v).toFinset ?_ _  ?_
   --
   sorry
   -- apply IsClique.card_le_of_coloring (G := lineGraph G)
