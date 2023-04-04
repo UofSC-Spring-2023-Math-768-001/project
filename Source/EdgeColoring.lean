@@ -54,6 +54,22 @@ theorem something : edgeSpan G v = (edgeSpan G v).toFinset := by
 
 def neighborSettoEdge (v' : neighborSet G v) : Sym2 V := ⟦(v,v')⟧
 
+
+theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne : x ≠ y)(h₁ : x ∈ z) : (Sym2.Mem.other h₁) = y := by
+  have h : x ∈ ⟦(x, y)⟧ :=
+      Sym2.mem_iff.mpr <| .inl rfl
+  have h' : (Sym2.Mem.other (h)) = x ∨ (Sym2.Mem.other (h)) = y := Sym2.mem_iff.mp (Sym2.other_mem h)
+  have h'' : Sym2.Mem.other h ≠ x := by
+      by_contra f
+      have H : ⟦(x, Sym2.Mem.other h)⟧ = Quotient.mk (Sym2.Rel.setoid V) (x, y) := Sym2.other_spec h
+      have H' : y ∈ Quotient.mk (Sym2.Rel.setoid V) (x, y) := Sym2.mem_mk''_right x y
+      have H'' :  y ∈ Quotient.mk (Sym2.Rel.setoid V) (x, y) ↔ (y = x ∨ y = y) := Sym2.mem_iff
+      rw [H''] at H'
+      cases' H' with w
+      repeat exact hne (Eq.symm w)
+
+
+  
 noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v) where
   toFun := fun ⟨v',hv'⟩ => by
     refine ⟨⟨⟦(v,v')⟧,hv'⟩,?_⟩
@@ -68,26 +84,12 @@ noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v
   left_inv := fun ⟨v',hv'⟩ => by
     dsimp
     congr
-    have h₁ : v ∈ Quotient.mk (Sym2.Rel.setoid V) (v, v') :=
-      Sym2.mem_iff.mpr <| .inl rfl
-    have h₂ : Sym2.Mem.other h₁ ∈ Quotient.mk (Sym2.Rel.setoid V) (v, v') := Sym2.other_mem h₁
-    have h₄ : Sym2.Mem.other h₁ ∈ neighborSet G v := by
-      dsimp [neighborSet] at *
-      rw [←mem_edgeSet,Sym2.other_spec h₁]
-      exact h₁
-    have h₃ : Sym2.Mem.other h₁ ≠ v := by
-      intro h
-      rw [h] at h₄
-      apply False.elim <| G.loopless v h₄
-    rw [Sym2.mem_iff] at h₂
-    cases' h₂ with h h
-    · apply False.elim <| h₃ h
-    · exact h
-  right_inv := sorry
-
-#check Classical.choice
-#check Fintype.card
-#check Finset.card
+    apply other_not_eq_given (Quotient.mk (Sym2.Rel.setoid V) (v, v')) (ne_of_adj G hv') 
+    rfl
+  right_inv := fun ⟨⟨e,he⟩,he'⟩ => by
+    dsimp
+    congr
+    exact Sym2.other_spec he'
 
 example (W : Type) (s : Set W) [Fintype s] : Finset W := s.toFinset
   -- @Finset.map s W ⟨(↑),Subtype.coe_injective⟩ elems
@@ -101,8 +103,9 @@ theorem degree_le_edgeColoring [Fintype α] (c : EdgeColoring G α) : G.degree v
   change (neighborFinset G v).card ≤ Fintype.card α
   rw [neighborFinset]
   have X : Finset.card (Set.toFinset (neighborSet G v)) = Finset.card (Set.toFinset (edgeSpan G v)) := by
-    apply card_eq_of_bijective _ _ _ _
-
+    
+    sorry
+    
 
   --refine @IsClique.card_le_of_coloring (edgeSet G) (lineGraph G) α (edgeSpan G v).toFinset ?_ _  ?_
   --
