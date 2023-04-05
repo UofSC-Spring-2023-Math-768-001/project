@@ -54,7 +54,6 @@ theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne 
       Sym2.mem_iff.mpr <| .inl rfl
   have h' : (Sym2.Mem.other (h)) = x ∨ (Sym2.Mem.other (h)) = y := Sym2.mem_iff.mp (Sym2.other_mem h)
   have h'' : Sym2.Mem.other h ≠ x := by
-      
       have H : ⟦(x, Sym2.Mem.other h)⟧ = Quotient.mk (Sym2.Rel.setoid V) (x, y) := Sym2.other_spec h
       have H' : y ∈ Quotient.mk (Sym2.Rel.setoid V) (x, y) := Sym2.mem_mk''_right x y
       rw [←H] at H'
@@ -69,6 +68,13 @@ theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne 
       exact hne (_root_.id (Eq.symm w))
       rw [←X] at hne
       exact _root_.id (Ne.symm hne)
+  cases' h' with Y Y
+  by_contra 
+  exact h'' Y
+  
+    
+  sorry
+
 
 
 noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v) where
