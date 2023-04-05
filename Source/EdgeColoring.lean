@@ -49,7 +49,7 @@ def edgeSpan : Set (edgeSet G) := fun e => Sym2.Mem v e
 def neighborSettoEdge (v' : neighborSet G v) : Sym2 V := ⟦(v,v')⟧
 
 
-theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne : x ≠ y)(h₁ : x ∈ z) : (Sym2.Mem.other h₁) = y := by
+theorem other_not_eq_given {x y : V} (hne : x ≠ y)(h₁ : x ∈ ⟦(x, y)⟧) : (Sym2.Mem.other h₁) = y := by
   have h : x ∈ ⟦(x, y)⟧ :=
       Sym2.mem_iff.mpr <| .inl rfl
   have h' : (Sym2.Mem.other (h)) = x ∨ (Sym2.Mem.other (h)) = y := Sym2.mem_iff.mp (Sym2.other_mem h)
@@ -63,7 +63,7 @@ theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne 
       by_contra
       exact hne (Eq.symm w)
       cases' h' with X X
-      by_contra A
+      by_contra
       rw [←X] at hne
       exact hne (_root_.id (Eq.symm w))
       rw [←X] at hne
@@ -71,9 +71,8 @@ theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne 
   cases' h' with Y Y
   by_contra 
   exact h'' Y
-  
-    
-  sorry
+  rw [Y]
+
 
 
 
@@ -91,8 +90,7 @@ noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v
   left_inv := fun ⟨v',hv'⟩ => by
     dsimp
     congr
-    apply other_not_eq_given (Quotient.mk (Sym2.Rel.setoid V) (v, v')) (ne_of_adj G hv') 
-    rfl
+    apply other_not_eq_given (ne_of_adj G hv') 
   right_inv := fun ⟨⟨e,he⟩,he'⟩ => by
     dsimp
     congr
