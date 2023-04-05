@@ -42,18 +42,10 @@ theorem EdgeColoring.valid {α : Type v} (G : SimpleGraph V)
 
 noncomputable def edgeChromaticNumber : ℕ := chromaticNumber (lineGraph G)
 
-variable (v : V) [Fintype (neighborSet G v)]
+variable (v : V) [F : Fintype (neighborSet G v)]
 open Fintype Finset
 
 def edgeSpan : Set (edgeSet G) := fun e => Sym2.Mem v e
-
-instance : Fintype (edgeSpan G v) := sorry
-   
-
-
-theorem something : edgeSpan G v = (edgeSpan G v).toFinset := by
-  exact Eq.symm (Set.coe_toFinset (edgeSpan G v))
-
 def neighborSettoEdge (v' : neighborSet G v) : Sym2 V := ⟦(v,v')⟧
 
 
@@ -62,16 +54,23 @@ theorem other_not_eq_given {x y : V} (z : Sym2 V){h₁' : z = ⟦(x, y)⟧}(hne 
       Sym2.mem_iff.mpr <| .inl rfl
   have h' : (Sym2.Mem.other (h)) = x ∨ (Sym2.Mem.other (h)) = y := Sym2.mem_iff.mp (Sym2.other_mem h)
   have h'' : Sym2.Mem.other h ≠ x := by
-      by_contra f
+      
       have H : ⟦(x, Sym2.Mem.other h)⟧ = Quotient.mk (Sym2.Rel.setoid V) (x, y) := Sym2.other_spec h
       have H' : y ∈ Quotient.mk (Sym2.Rel.setoid V) (x, y) := Sym2.mem_mk''_right x y
-      have H'' :  y ∈ Quotient.mk (Sym2.Rel.setoid V) (x, y) ↔ (y = x ∨ y = y) := Sym2.mem_iff
+      rw [←H] at H'
+      have H'' :  y ∈ Quotient.mk (Sym2.Rel.setoid V) (x, Sym2.Mem.other h) ↔ (y = x ∨ y = Sym2.Mem.other h) := Sym2.mem_iff
       rw [H''] at H'
-      cases' H' with w
-      repeat exact hne (Eq.symm w)
+      cases' H' with w w
+      by_contra
+      exact hne (Eq.symm w)
+      cases' h' with X X
+      by_contra A
+      rw [←X] at hne
+      exact hne (_root_.id (Eq.symm w))
+      rw [←X] at hne
+      exact _root_.id (Ne.symm hne)
 
 
-  
 noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v) where
   toFun := fun ⟨v',hv'⟩ => by
     refine ⟨⟨⟦(v,v')⟧,hv'⟩,?_⟩
@@ -92,6 +91,18 @@ noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v
     dsimp
     congr
     exact Sym2.other_spec he'
+
+noncomputable instance : Fintype (edgeSpan G v) := by
+  exact Fintype.ofEquiv (neighborSet G v) (neighborSetedgeSpanEquiv G v) 
+    
+
+
+theorem something : edgeSpan G v = (edgeSpan G v).toFinset := by
+  exact Eq.symm (Set.coe_toFinset (edgeSpan G v))
+
+
+
+
 
 example (W : Type) (s : Set W) [Fintype s] : Finset W := s.toFinset
   -- @Finset.map s W ⟨(↑),Subtype.coe_injective⟩ elems
