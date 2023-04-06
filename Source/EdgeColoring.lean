@@ -69,12 +69,9 @@ theorem other_not_eq_given {x y : V} (hne : x ≠ y)(h₁ : x ∈ ⟦(x, y)⟧) 
       rw [←X] at hne
       exact _root_.id (Ne.symm hne)
   cases' h' with Y Y
-  by_contra 
+  by_contra
   exact h'' Y
   rw [Y]
-
-
-
 
 noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v) where
   toFun := fun ⟨v',hv'⟩ => by
@@ -90,41 +87,29 @@ noncomputable def neighborSetedgeSpanEquiv : (neighborSet G v) ≃ (edgeSpan G v
   left_inv := fun ⟨v',hv'⟩ => by
     dsimp
     congr
-    apply other_not_eq_given (ne_of_adj G hv') 
+    apply other_not_eq_given (ne_of_adj G hv')
   right_inv := fun ⟨⟨e,he⟩,he'⟩ => by
     dsimp
     congr
     exact Sym2.other_spec he'
 
 noncomputable instance : Fintype (edgeSpan G v) := by
-  exact Fintype.ofEquiv (neighborSet G v) (neighborSetedgeSpanEquiv G v) 
-    
-
+  exact Fintype.ofEquiv (neighborSet G v) (neighborSetedgeSpanEquiv G v)
 
 theorem something : edgeSpan G v = (edgeSpan G v).toFinset := by
   exact Eq.symm (Set.coe_toFinset (edgeSpan G v))
-
-
-
-
 
 example (W : Type) (s : Set W) [Fintype s] : Finset W := s.toFinset
   -- @Finset.map s W ⟨(↑),Subtype.coe_injective⟩ elems
 
 theorem edgeSpan_isClique : IsClique (lineGraph G) <| edgeSpan G v := fun _ he₁ _ he₂ ne => ⟨⟨v,⟨he₁,he₂⟩⟩,ne⟩
 
---theorem edgeSpanFinSet_isClique : IsClique (lineGraph G) ↑(Set.toFinset(edgeSpan G v)) := fun _ he₁ _ he₂ ne => ⟨⟨v,⟨he₁,he₂⟩⟩,ne⟩
-
-
-#check IsClique.card_le_of_coloring
-
-
-theorem degree_le_edgeColoring [Fintype α] (c : EdgeColoring G α) : G.degree v ≤ Fintype.card α := by
+theorem degree_le_card_edgeColoring [Fintype α] (c : EdgeColoring G α) : G.degree v ≤ Fintype.card α := by
   change (neighborFinset G v).card ≤ Fintype.card α
   rw [neighborFinset]
   have X : Fintype.card ((neighborSet G v)) = Fintype.card ((edgeSpan G v)) := by
     apply Fintype.card_congr (neighborSetedgeSpanEquiv G v)
-  
+
   repeat rw [←Set.toFinset_card] at X
   rw [X]
 
@@ -137,21 +122,38 @@ theorem degree_le_edgeColoring [Fintype α] (c : EdgeColoring G α) : G.degree v
   have H'' : AdjacentAt v h₁ h₃ := by
     exact ⟨H,H'⟩
   exact H''
-  
+
   exact h₅
   exact c
+--
+-- def restrictedColoring (c : EdgeColoring G α) : G.neighborSet v → α := sorry
+--
+theorem degree_le_coloring (n : ℕ) (c : EdgeColoring G (Fin n)) :
+    G.degree v ≤ n := by
+  rw [←Fintype.card_fin n]
+  apply degree_le_card_edgeColoring _ _ c
 
+theorem degree_le_colorable (n : ℕ) (h : (lineGraph G).Colorable n) :
+    G.degree v ≤ n := by
+  have ⟨c⟩ := h
+  apply degree_le_coloring
+  exact c
 
-def restrictedColoring (c : EdgeColoring G α) : G.neighborSet v → α := sorry
+theorem degree_le_edgeChromaticNumber [Fintype (edgeSet G)] :
+    G.degree v ≤ edgeChromaticNumber G:= by
+  apply le_cinfₛ
+  · apply colorable_set_nonempty_of_colorable
+    apply colorable_of_fintype
+  · intro b ⟨h⟩
+    apply degree_le_coloring
+    change Coloring (lineGraph G) (Fin b)
+    apply h
 
-theorem ge_degree_of_coloring (n : ℕ) (c : EdgeColoring G (Fin n)) :
-    n ≥ G.degree v := by
-  by_contra h
-  sorry
+variable [∀ v, Fintype (neighborSet G v)]
 
-theorem ge_degree_of_colorable (n : ℕ) (h : G.Colorable n) :
-    n ≥ G.degree v := sorry
-
-theorem edgeChromaticNumber_ge_degree :
-    edgeChromaticNumber G ≥ G.degree v := by
-  sorry
+theorem maxDegree_le_edgeChromaticNumber [Fintype V] [DecidableRel G.Adj] [Fintype (edgeSet G)] :
+    maxDegree G ≤ edgeChromaticNumber G := by
+    have : maxDegree G = (univ.image fun v => G.degree v).max := sorry
+    rw [this]
+    apply Finset.max_le
+    -- apply degree_le_maxDegree
