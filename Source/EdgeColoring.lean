@@ -149,11 +149,24 @@ theorem degree_le_edgeChromaticNumber [Fintype (edgeSet G)] :
     change Coloring (lineGraph G) (Fin b)
     apply h
 
-variable [∀ v, Fintype (neighborSet G v)]
+-- Note: these should exist
+-- instance [Fintype V] : Fintype (Sym2 V) := sorry
+-- instance [Fintype V] : Fintype (edgeSet G) := sorry
 
 theorem maxDegree_le_edgeChromaticNumber [Fintype V] [DecidableRel G.Adj] [Fintype (edgeSet G)] :
     maxDegree G ≤ edgeChromaticNumber G := by
-    have : maxDegree G = (univ.image fun v => G.degree v).max := sorry
+  apply maxDegree_le_of_forall_degree_le
+  intro v
+  apply degree_le_edgeChromaticNumber G v
+
+theorem edgeChromaticNumber_le_succ_maxDegree [Fintype V] [DecidableRel G.Adj] [Fintype (edgeSet G)] :
+    edgeChromaticNumber G ≤ maxDegree G + 1 := by
+  let n := Fintype.card (edgeSet G)
+  induction' n with n hn
+  · have : IsEmpty (edgeSet G) := sorry
+    have : edgeChromaticNumber G = 0 := sorry
     rw [this]
-    apply Finset.max_le
-    -- apply degree_le_maxDegree
+    apply Nat.zero_le
+  · sorry
+
+
