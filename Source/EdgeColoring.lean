@@ -159,14 +159,31 @@ theorem maxDegree_le_edgeChromaticNumber [Fintype V] [DecidableRel G.Adj] [Finty
   intro v
   apply degree_le_edgeChromaticNumber G v
 
-theorem edgeChromaticNumber_le_succ_maxDegree [Fintype V] [DecidableRel G.Adj] [Fintype (edgeSet G)] :
-    edgeChromaticNumber G ≤ maxDegree G + 1 := by
-  let n := Fintype.card (edgeSet G)
-  induction' n with n hn
-  · have : IsEmpty (edgeSet G) := sorry
-    have : edgeChromaticNumber G = 0 := sorry
-    rw [this]
-    apply Nat.zero_le
-  · sorry
+def insertEdges (t : Set (Sym2 V)) (G : SimpleGraph V) : SimpleGraph V :=
+  fromEdgeSet (t ∪ edgeSet G)
 
+instance : Insert (Sym2 V) (SimpleGraph V) where
+  insert := fun e G => fromEdgeSet (insert e <| edgeSet G)
+
+instance equivSimpleGraphNonDiagSym2 : Equiv (SimpleGraph V) { s : Set <| Sym2 V // s ∩ Sym2.IsDiag = ∅ } where
+  toFun := fun G => by
+    refine sorry
+  invFun := sorry
+  left_inv := sorry
+  right_inv := sorry
+
+-- example : [Fintype V] (s : Set (Sym2 V)) :
+--     edgeChromaticNumber equivSimpleGraphNonDiagSym2 s ≤
+--     maxDegee equiv
+#check Equiv.forall_congr
+theorem edgeChromaticNumber_le_succ_maxDegree [Fintype V] [Fintype (edgeSet G)] :
+    edgeChromaticNumber G ≤ maxDegree G + 1 := by sorry
+  -- rw [Equiv.forall_congr_left']
+  -- let n := Fintype.card (edgeSet G)
+  -- apply Fintype.induction_subsingleton_or_nontrivial
+  -- · have : IsEmpty (edgeSet G) := sorry--  Fintype.card_eq_zero_iff.mp
+  --   have : edgeChromaticNumber G = 0 := sorry
+  --   rw [this]
+  --   apply Nat.zero_le
+  -- · sorry
 
